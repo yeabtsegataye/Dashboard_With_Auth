@@ -1,0 +1,42 @@
+{
+  "name": "dashboard_clinet",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "animate.css": "^3.7.0",
+    "axios": "^1.7.2",
+    "bootstrap": "^4.3.1",
+    "cross-env": "^5.1",
+    "jquery": "^3.3.1",
+    "jquery-migrate": "^3.0.1",
+    "jquery-mousewheel": "^3.1.13",
+    "jquery-validation": "^1.17.0",
+    "laravel-mix": "^4.0.15",
+    "malihu-custom-scrollbar-plugin": "^3.1.5",
+    "popper.js": "^1.14.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.24.1",
+    "sass": "^1.18.0",
+    "sass-loader": "7.*",
+    "vue-template-compiler": "^2.6.10",
+    "webpack-jquery-ui": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "vite": "^5.3.1"
+  }
+}
