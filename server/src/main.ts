@@ -10,9 +10,9 @@ async function bootstrap() {
 
   // Apply CORS middleware
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: 'http://localhost:5173',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
     credentials: true, // Allow credentials (cookies)
   });
   // Apply logging middleware

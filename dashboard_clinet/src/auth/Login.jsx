@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
+import { useLoginMutation } from "../features/auth/authApiSlice";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [emailError, setEmailError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [formValid, setFormValid] = useState(false);
 
   const handleEmailChange = (e) => {
@@ -19,18 +23,22 @@ function Login() {
 
   const validateEmail = (value) => {
     const emailValid = value.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i);
-    setEmailError(emailValid ? '' : 'Email is invalid');
+    setEmailError(emailValid ? "" : "Email is invalid");
     setFormValid(emailValid);
   };
+  const [login] = useLoginMutation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formValid) {
       try {
-        const response = await axios.post('/api/login', { email, password });
-        console.log('Login successful', response.data);
+        const userData = await login({ email, Password: password }).unwrap();
+        dispatch(setCredentials(userData));
+       navigate("/");
       } catch (error) {
-        console.error('Login error', error);
+        console.log("Login error", error);
       }
     }
   };
@@ -53,7 +61,9 @@ function Login() {
                   <input
                     id="email"
                     type="email"
-                    className={`form-control ${emailError ? 'is-invalid' : email && 'is-valid'}`}
+                    className={`form-control ${
+                      emailError ? "is-invalid" : email && "is-valid"
+                    }`}
                     name="email"
                     required
                     autoFocus
@@ -100,8 +110,12 @@ function Login() {
                 </div>
 
                 <div className="form-group no-margin">
-                  <button type="submit" className="btn btn-primary btn-block" disabled={!formValid}>
-                   Log in
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-block"
+                    disabled={!formValid}
+                  >
+                    Log in
                   </button>
                 </div>
                 <div className="text-center mt-3 small">

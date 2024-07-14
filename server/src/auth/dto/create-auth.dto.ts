@@ -3,7 +3,7 @@ import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
 export class CreateAuthDto {
   @IsNotEmpty()
   @IsString()
- //@IsEmail()
+ @IsEmail()
   email: string;
 
   //   @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, {

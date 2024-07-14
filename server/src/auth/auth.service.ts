@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  Res,
-  Req,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException, Res, Req } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
@@ -62,7 +57,7 @@ export class AuthService {
       }
     }
   }
- /////////////////////////////////
+  /////////////////////////////////
   async Login(AutDTO: CreateAuthDto, @Res() res: Response) {
     // const SECRET_KEY = 'your-frontend-secret-key'; // Don't do this like me :)
     // const decryptData = (encryptedData: string) => {
@@ -94,7 +89,7 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload, {
       secret: jwtConstants.Access_secret,
-      expiresIn: '1m',
+      expiresIn: '30s',
     });
     const refreshToken = this.jwtService.sign(payload, {
       secret: jwtConstants.Refresh_secret,
@@ -108,58 +103,77 @@ export class AuthService {
     });
     return res.send({ accessToken });
   }
- /////////////////////////////////
+  /////////////////////////////////
   private extractAccessToken(access_token: string) {
     if (access_token && access_token.startsWith('Bearer ')) {
       const acc = access_token.split(' ')[1];
       return acc;
     }
   }
- /////////////////////////////////
+  /////////////////////////////////
   async refreshToken(@Res() res: Response, @Req() req: CustomRequest) {
     const refreshToken = req.cookies.refresh_token;
-    const access_token = req.headers.authorization;
+    //const access_token = req.headers.authorization;
 
+    if (!refreshToken) {
+      throw new UnauthorizedException('No token found');
+    }
+    try {
+      const payload = await this.jwtService.verify(refreshToken, {
+        secret: jwtConstants.Refresh_secret,
+      });
+      const { id, email } = payload;
+
+      const accessToken = this.jwtService.sign(
+        { id, email },
+        {
+          secret: jwtConstants.Access_secret,
+          expiresIn: '30s',
+        },
+      );
+      console.log('sented acc ', accessToken)
+      return res.send({ accessToken });
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException(
+          'Refresh token expired, please log in again',
+        );
+      }
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+    // }
+    //  else {
+    //   throw new UnauthorizedException('Invalid access token');
+    // }
+
+    ///////////////////
+  }
+  ////////////////////////////////
+  async verifiToken(@Res() res: Response, @Req() req: CustomRequest) {
+    const refreshToken = req.cookies.refresh_token;
+    const access_token = req.headers.authorization;
+    //console.log(refreshToken, "ref" , access_token ,'accs')
     if (!refreshToken || !access_token) {
       throw new UnauthorizedException('No token found');
     }
     try {
       const acc = this.extractAccessToken(access_token);
-      // console.log(acc, 'acc extracted')
 
-      const ac = await this.jwtService.verifyAsync(acc, {
+      await this.jwtService.verifyAsync(acc, {
         secret: jwtConstants.Access_secret,
       });
-      return res.send('alrady have valid access_token');
-      // throw new Error( 'alrady have valid access_token')
+      return res.send({ verified: true });
     } catch (error) {
-      if (error.name === 'TokenExpiredError') {
-        try {
-          const payload = await this.jwtService.verify(refreshToken, {
-            secret: jwtConstants.Refresh_secret,
-          });
-          const { id, email } = payload;
-
-          const accessToken = this.jwtService.sign(
-            { id, email },
-            {
-              secret: jwtConstants.Access_secret,
-              expiresIn: '50s',
-            },
-          );
-          return res.send({ accessToken });
-        } catch (error) {
-          if (error.name === 'TokenExpiredError') {
-            throw new UnauthorizedException(
-              'Refresh token expired, please log in again',
-            );
-          }
-          throw new UnauthorizedException('Invalid refresh token');
-        }
-      } else {
-        throw new UnauthorizedException('Invalid access token');
-      }
+      
+      console.log(error);
+      return res.send({ verified: false });
     }
     ///////////////////
+  }
+  //////////////////
+  async Logout(@Res() res: Response, @Req() req: CustomRequest) {
+    res.clearCookie('refresh_token');
+    res.end()
+    return
   }
 }

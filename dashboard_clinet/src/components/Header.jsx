@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import logoMini from "../assets/img/logo-mini.png";
 import logo from "../assets/img/logo.png";
+import { logOut } from "../features/auth/authSlice";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import removeCookie from "../auth/removeCookie";
+
 // import av from "../assets/img/av.png";
 // import SideBar from "./SideBar";
 
@@ -10,20 +16,54 @@ const Header = () => {
     const body = document.body;
 
     if (window.innerWidth > 992) {
-      body.classList.toggle('side-nav-closed');
-      body.classList.toggle('side-nav-minified');
-          // Find all elements with the "sidebar-heading" class
-          const sidebarHeadings = document.querySelectorAll('.sidebar-heading');
-          sidebarHeadings.forEach((element) => {
-            if (element.style.display === 'none') {
-              element.style.display = 'block'; // Show element
-            } else {
-              element.style.display = 'none'; // Hide element
-            }
-          });
+      body.classList.toggle("side-nav-closed");
+      body.classList.toggle("side-nav-minified");
+      // Find all elements with the "sidebar-heading" class
+      const sidebarHeadings = document.querySelectorAll(".sidebar-heading");
+      sidebarHeadings.forEach((element) => {
+        if (element.style.display === "none") {
+          element.style.display = "block"; // Show element
+        } else {
+          element.style.display = "none"; // Hide element
+        }
+      });
     } else {
-      body.classList.toggle('side-nav-minified');
-      body.classList.toggle('side-nav-initialized');
+      body.classList.toggle("side-nav-minified");
+      body.classList.toggle("side-nav-initialized");
+    }
+  };
+
+  /////////////////
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    removeCookie("refresh_token");
+
+    try {
+      // Make the request to the logout endpoint
+      const response = await axios.post(
+        "http://localhost:8000/auth/log-out",
+        {},
+        {
+          withCredentials: true, // Include cookies in the request
+        }
+      );
+
+      if (response.status === 201) {
+        // Dispatch the logOut action to clear the Redux state
+        dispatch(logOut());
+
+        // Navigate to the login page
+        navigate("/Login");
+      } else {
+        console.error("Failed to log out");
+        // Handle the error as needed
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+      // Handle the error as needed
     }
   };
   return (
@@ -191,7 +231,11 @@ const Header = () => {
                         </span>
                         My Profile
                       </a>
-                      <a className="dropdown-item" href="/Login">
+                      <a
+                        className="dropdown-item"
+                        href=""
+                        onClick={(e) => handleLogout(e)}
+                      >
                         <span className="unfold-item-icon mr-3">
                           <i className="gd-power-off"></i>
                         </span>
@@ -210,7 +254,7 @@ const Header = () => {
                   <li className="unfold-item">
                     <a
                       className="unfold-link d-flex align-items-center text-nowrap"
-                      href="#"
+                      href="/myprofile"
                     >
                       <span className="unfold-item-icon mr-3">
                         <i className="gd-user"></i>
@@ -221,7 +265,8 @@ const Header = () => {
                   <li className="unfold-item unfold-item-has-divider">
                     <a
                       className="unfold-link d-flex align-items-center text-nowrap"
-                      href="#"
+                      href=""
+                      onClick={(e) => handleLogout(e)}
                     >
                       <span className="unfold-item-icon mr-3">
                         <i className="gd-power-off"></i>

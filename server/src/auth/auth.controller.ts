@@ -26,4 +26,16 @@ export class AuthController {
   async refreshToken(@Res() res: Response, @Req() req: CustomRequest) {
     return this.authService.refreshToken(res, req);
   }
+
+  @Post('verify-token')
+ // @Public()
+  async verifiToken(@Res() res: Response, @Req() req: CustomRequest) {
+    return this.authService.verifiToken(res, req);
+  }
+
+  @Post('log-out')
+   @Public()
+   async Logout(@Res() res: Response, @Req() req: CustomRequest) {
+     return this.authService.Logout(res, req);
+   }
 }
