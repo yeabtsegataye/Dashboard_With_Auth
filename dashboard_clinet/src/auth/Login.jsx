@@ -4,14 +4,19 @@ import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import { useLoginMutation } from "../features/auth/authApiSlice";
 import { setCredentials } from "../features/auth/authSlice";
-
-const SECRET_KEY = 'your-frontend-secret-key'; // Use the same secret key for encryption and decryption
+import { useToast } from "@chakra-ui/react";
+import Notif_Toast from "../components/Tost";
+const SECRET_KEY = import.meta.env.VITE_SECRET_KEY
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [formValid, setFormValid] = useState(false);
+  const toast = useToast();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [login] = useLoginMutation();
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -29,23 +34,33 @@ function Login() {
     setFormValid(emailValid);
   };
 
-  const [login] = useLoginMutation();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formValid) {
       try {
         // Encrypt the password
-        const encryptedPassword = CryptoJS.AES.encrypt(password, SECRET_KEY).toString();
+        const encryptedPassword = CryptoJS.AES.encrypt(
+          password,
+          SECRET_KEY
+        ).toString();
 
-        const userData = await login({ email, Password: encryptedPassword }).unwrap();
-        console.log(userData, 'login')
-        dispatch(setCredentials(userData));
-        navigate("/");
+        const userData = await login({
+          email,
+          Password: encryptedPassword,
+        }).unwrap();
+        if (userData) {
+          dispatch(setCredentials(userData));
+          Notif_Toast(
+            toast,
+            "Login successful",
+            "You have successfully logged in",
+            "success"
+          );
+
+          navigate("/");
+        }
       } catch (error) {
-        console.log("Login error", error);
+        Notif_Toast(toast, "Error logging in", error.data?.message, "error");
       }
     }
   };

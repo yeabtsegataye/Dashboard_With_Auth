@@ -7,25 +7,29 @@ import { AuthModule } from './auth/auth.module';
 import { User } from './users/entities/user.entity';
 import { RequestLoggerMiddleware } from './logging/rate-limiter-logger.middleware';
 import { CustomLogger } from './logging/logger.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),// for env
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'tati',
-      password: '123',
-      database: 'Dashboard',
+      host: process.env.HOST,
+      port: Number(process.env.PORT),
+      username: process.env.USER_NAME,
+      password: process.env.PASSWORD,
+      database: process.env.DB,
       entities: [User],
       synchronize: false,
     }),
     UsersModule,
     AuthModule,
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
   ],
   providers: [
     CustomLogger,

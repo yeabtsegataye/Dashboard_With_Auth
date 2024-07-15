@@ -88,35 +88,35 @@ const SideBar = () => {
     // <!-- Sidebar Nav -->
     <aside
       id="sidebar"
-      class="js-custom-scroll side-nav mCustomScrollbar _mCS_1 mCS-autoHide mCS_no_scrollbar"
+      className="js-custom-scroll side-nav mCustomScrollbar _mCS_1 mCS-autoHide mCS_no_scrollbar"
     >
-      <ul id="sideNav" class="side-nav-menu side-nav-menu-top-level mb-0">
+      <ul id="sideNav" className="side-nav-menu side-nav-menu-top-level mb-0">
         {/* <!-- Title --> */}
-        <li class="sidebar-heading h6">Dashboard</li>
+        <li className="sidebar-heading h6">Dashboard</li>
         {/* <!-- End Title --> */}
 
         {/* <!-- Dashboard --> */}
-        <li class="side-nav-menu-item active">
-          <Link class="side-nav-menu-link media align-items-center" to="/">
-            <span class="side-nav-menu-icon d-flex mr-3">
-              <i class="gd-dashboard"></i>
+        <li className="side-nav-menu-item active">
+          <Link className="side-nav-menu-link media align-items-center" to="/">
+            <span className="side-nav-menu-icon d-flex mr-3">
+              <i className="gd-dashboard"></i>
             </span>
-            <span class="side-nav-fadeout-on-closed media-body">Dashboard</span>
+            <span className="side-nav-fadeout-on-closed media-body">Dashboard</span>
           </Link>
         </li>
         {/* <!-- End Dashboard -->
 
         <!-- Documentation --> */}
-        <li class="side-nav-menu-item">
+        <li className="side-nav-menu-item">
           <Link
-            class="side-nav-menu-link media align-items-center"
+            className="side-nav-menu-link media align-items-center"
             to="/"
             target="_blank"
           >
-            <span class="side-nav-menu-icon d-flex mr-3">
-              <i class="gd-window"></i>
+            <span className="side-nav-menu-icon d-flex mr-3">
+              <i className="gd-window"></i>
             </span>
-            <span class="side-nav-fadeout-on-closed media-body">
+            <span className="side-nav-fadeout-on-closed media-body">
               employee
             </span>
           </Link>
@@ -124,7 +124,7 @@ const SideBar = () => {
         {/* <!-- End Documentation -->
 
         <!-- Title --> */}
-        <li class="sidebar-heading h6">Examples</li>
+        <li className="sidebar-heading h6">Examples</li>
         {/* <!-- End Title -->
         <!-- Users --> */}
         {YourComponent()}

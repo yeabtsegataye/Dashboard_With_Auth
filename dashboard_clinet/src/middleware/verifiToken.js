@@ -1,25 +1,21 @@
 import axios from "axios";
 // import { useDispatch } from "react-redux";
 import { logOut } from "../features/auth/authSlice";
+const VITE_API_URL = import.meta.env.VITE_API_URL
 
 const verifyToken = async (token, dispatch, refresh) => {
   if (token) {
-    // console.log(token, "form the prop");
-    const url = "http://localhost:8000/auth/verify-token"; // Adjust the endpoint as needed
+    const url = `${VITE_API_URL}/auth/verify-token`; // Adjust the endpoint as needed
     const config = {
       headers: {
         authorization: `Bearer ${token}`, // Add the token as Authorization header
       },
       withCredentials: true, // Include cookies in the request
     };
-    // const dispatch = useDispatch();
 
     try {
       const response = await axios.post(url, {}, config);
-      // console.log(response.data.verified, "verified respons");
-      // if (!response.data.verified) {
-      //   dispatch(logOut());
-      // }
+
       return response.data.verified;
     } catch (error) {
       console.log(error.response.data.statusCode);

@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import axios from "axios";
 import CryptoJS from "crypto-js";
-import { useDispatch } from "react-redux";
-import { setCredentials } from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@chakra-ui/react";
+import { useSignupMutation } from "../features/auth/authApiSlice";
+const SECRET_KEY = import.meta.env.VITE_SECRET_KEY
 
 export const Signup = () => {
-  const dispach = useDispatch();
   const navigate = useNavigate();
+  const toast = useToast();
+  const [signup] = useSignupMutation();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,7 +20,6 @@ export const Signup = () => {
   const [formErrors, setFormErrors] = useState({});
   const [formValid, setFormValid] = useState(false);
 
-  const SECRET_KEY = "your-frontend-secret-key";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,17 +67,27 @@ export const Signup = () => {
           ...formData,
           Password: encryptedPassword,
         };
-   
-        const response = await axios.post(
-          "http://localhost:8000/auth/signup",
-          encryptedFormData
-        );
-        if (response.data.accessToken) {
-          // const userData = response.data;
-          // dispach(setCredentials(userData));
+        const response = await signup(encryptedFormData).unwrap();
+        if (response.accessToken) {
+          toast({
+            title: "Signup successful",
+            description: "You have successfully signed up",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });
           navigate("/");
         }
       } catch (error) {
+        toast({
+          title: "Error signing up",
+          description: error.data?.message || "An unexpected error occurred",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
         console.error("Signup error", error);
       }
     }

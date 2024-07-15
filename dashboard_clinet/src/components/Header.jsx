@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import logoMini from "../assets/img/logo-mini.png";
 import logo from "../assets/img/logo.png";
 import { logOut } from "../features/auth/authSlice";
@@ -6,11 +6,14 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import removeCookie from "../auth/removeCookie";
+import Notif_Toast from "./Tost";
+import { useToast } from "@chakra-ui/react";
 
 // import av from "../assets/img/av.png";
 // import SideBar from "./SideBar";
 
 const Header = () => {
+  const toast = useToast()
   const toggleSidebar = (e) => {
     e.preventDefault();
     const body = document.body;
@@ -54,7 +57,12 @@ const Header = () => {
       if (response.status === 201) {
         // Dispatch the logOut action to clear the Redux state
         dispatch(logOut());
-
+        Notif_Toast(
+          toast,
+          "Log out successful",
+          "You have successfully logged out",
+          "success"
+        );
         // Navigate to the login page
         navigate("/Login");
       } else {

@@ -1,4 +1,6 @@
+require('dotenv').config();
+
 export const jwtConstants = {
-   Access_secret: 'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
-   Refresh_secret: 'D, dfasdfasdfasdfads A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
-  };
+  Access_secret: process.env.ACC_SECRET,
+  Refresh_secret: process.env.REF_SECRET,
+};

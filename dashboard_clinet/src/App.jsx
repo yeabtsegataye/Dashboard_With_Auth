@@ -20,7 +20,7 @@ function App() {
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    if (isInitialLoad ) {
+    if (isInitialLoad) {
       refresh();
       setIsInitialLoad(false);
     }
@@ -29,8 +29,8 @@ function App() {
   const token = useSelector((state) => state.auth.token);
 
   const verified = async () => {
-    const IsVerified = await verifyToken(token, dispatch, refresh);
-    setIsVerified(IsVerified);
+    const Is_Verified = await verifyToken(token, dispatch, refresh);
+    setIsVerified(Is_Verified);
   };
   verified();
 

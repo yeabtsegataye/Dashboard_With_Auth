@@ -18,6 +18,7 @@ import { CustomRequest } from './custom-request.interface';
 
 @Injectable()
 export class AuthService {
+
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -25,7 +26,7 @@ export class AuthService {
   ) {}
 
   async Signup(AutDTO: CreateAuthDto, @Res() res: Response) {
-    const SECRET_KEY = 'your-frontend-secret-key'; // Ensure this matches the frontend key
+    const SECRET_KEY = process.env.SECRET_KEY; // Ensure this matches the frontend key
 
     const existingUser = await this.userRepository.findOne({
       where: { email: AutDTO.email },
@@ -83,7 +84,7 @@ export class AuthService {
   /////////////////////////////////
 
   async login(@Body() authDTO: CreateAuthDto, @Res() res: Response) {
-    const SECRET_KEY = 'your-frontend-secret-key'; // Should be kept secret
+    const SECRET_KEY = process.env.SECRET_KEY; // Ensure this matches the frontend key
     const decryptData = (encryptedData: string) => {
       try {
         const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
