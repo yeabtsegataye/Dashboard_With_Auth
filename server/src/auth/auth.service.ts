@@ -1,4 +1,10 @@
-import { Injectable, UnauthorizedException, Res, Req } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  Res,
+  Req,
+  Body,
+} from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
@@ -19,6 +25,8 @@ export class AuthService {
   ) {}
 
   async Signup(AutDTO: CreateAuthDto, @Res() res: Response) {
+    const SECRET_KEY = 'your-frontend-secret-key'; // Ensure this matches the frontend key
+
     const existingUser = await this.userRepository.findOne({
       where: { email: AutDTO.email },
     });
@@ -27,11 +35,26 @@ export class AuthService {
       return res.status(400).send('User already exists');
     } else {
       try {
-        const hash = await bcrypt.hash(AutDTO.Password, 10);
+        const decryptData = (encryptedData: string) => {
+          try {
+            const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
+            return bytes.toString(CryptoJS.enc.Utf8);
+          } catch (error) {
+            console.error('Error decrypting data:', error);
+            throw new UnauthorizedException('Invalid encrypted data');
+          }
+        };
+        /////////////////
+        const decryptedPassword = decryptData(AutDTO.Password);
+        if (!decryptedPassword) {
+          return res.status(400).send('Invalid encrypted password');
+        }
+        ////
+        const hash = await bcrypt.hash(decryptedPassword, 10);
         const newUser = this.userRepository.create({
           email: AutDTO.email,
           Password: hash,
-          phone: AutDTO.phone,
+          phone: '022',
         });
         const data = await this.userRepository.save(newUser);
         const payload = { id: data.id, email: data.email };
@@ -58,39 +81,44 @@ export class AuthService {
     }
   }
   /////////////////////////////////
-  async Login(AutDTO: CreateAuthDto, @Res() res: Response) {
-    // const SECRET_KEY = 'your-frontend-secret-key'; // Don't do this like me :)
-    // const decryptData = (encryptedData: string) => {
-    //   try {
-    //     const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
-    //     return bytes.toString(CryptoJS.enc.Utf8);
-    //   } catch (error) {
-    //     console.error('Error decrypting data:', error);
-    //     throw new UnauthorizedException('Invalid encrypted data');
-    //   }
-    // };
 
-    // const decryptedPassword = decryptData(AutDTO.Password);
-    // if (!decryptedPassword) {
-    //   return res.status(400).send('Invalid encrypted password');
-    // }
+  async login(@Body() authDTO: CreateAuthDto, @Res() res: Response) {
+    const SECRET_KEY = 'your-frontend-secret-key'; // Should be kept secret
+    const decryptData = (encryptedData: string) => {
+      try {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
+        return bytes.toString(CryptoJS.enc.Utf8);
+      } catch (error) {
+        console.error('Error decrypting data:', error);
+        throw new UnauthorizedException('Invalid encrypted data');
+      }
+    };
 
-    const data = await this.userRepository.findOne({
-      where: { email: AutDTO.email },
+    const decryptedPassword = decryptData(authDTO.Password);
+    if (!decryptedPassword) {
+      return res.status(400).send('Invalid encrypted password');
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { email: authDTO.email },
     });
-    if (!data) {
+
+    if (!user) {
       return res.status(404).send('No user found');
     }
-    const isMatch = await bcrypt.compare(AutDTO.Password, data.Password);
+
+    const isMatch = await bcrypt.compare(decryptedPassword, user.Password);
     if (!isMatch) {
       throw new UnauthorizedException();
     }
-    const payload = { id: data.id, email: data.email };
+
+    const payload = { id: user.id, email: user.email };
 
     const accessToken = this.jwtService.sign(payload, {
       secret: jwtConstants.Access_secret,
       expiresIn: '30s',
     });
+
     const refreshToken = this.jwtService.sign(payload, {
       secret: jwtConstants.Refresh_secret,
       expiresIn: '2m',
@@ -101,6 +129,7 @@ export class AuthService {
       secure: false, // Set to true in production
       sameSite: 'strict', // or 'lax'
     });
+
     return res.send({ accessToken });
   }
   /////////////////////////////////
@@ -131,7 +160,7 @@ export class AuthService {
           expiresIn: '30s',
         },
       );
-      console.log('sented acc ', accessToken)
+      console.log('sented acc ', accessToken);
       return res.send({ accessToken });
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
@@ -164,7 +193,6 @@ export class AuthService {
       });
       return res.send({ verified: true });
     } catch (error) {
-      
       console.log(error);
       return res.send({ verified: false });
     }
@@ -173,7 +201,7 @@ export class AuthService {
   //////////////////
   async Logout(@Res() res: Response, @Req() req: CustomRequest) {
     res.clearCookie('refresh_token');
-    res.end()
-    return
+    res.end();
+    return;
   }
 }

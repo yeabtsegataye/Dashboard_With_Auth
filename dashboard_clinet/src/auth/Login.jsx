@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { useLoginMutation } from "../features/auth/authApiSlice";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
+import CryptoJS from "crypto-js";
+import { useLoginMutation } from "../features/auth/authApiSlice";
+import { setCredentials } from "../features/auth/authSlice";
+
+const SECRET_KEY = 'your-frontend-secret-key'; // Use the same secret key for encryption and decryption
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -26,6 +28,7 @@ function Login() {
     setEmailError(emailValid ? "" : "Email is invalid");
     setFormValid(emailValid);
   };
+
   const [login] = useLoginMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,9 +37,13 @@ function Login() {
     e.preventDefault();
     if (formValid) {
       try {
-        const userData = await login({ email, Password: password }).unwrap();
+        // Encrypt the password
+        const encryptedPassword = CryptoJS.AES.encrypt(password, SECRET_KEY).toString();
+
+        const userData = await login({ email, Password: encryptedPassword }).unwrap();
+        console.log(userData, 'login')
         dispatch(setCredentials(userData));
-       navigate("/");
+        navigate("/");
       } catch (error) {
         console.log("Login error", error);
       }

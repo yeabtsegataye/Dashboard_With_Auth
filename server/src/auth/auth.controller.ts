@@ -4,21 +4,24 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { Response } from 'express';
 import { CustomRequest } from './custom-request.interface';
 import { Public } from './public.decorator';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
+  
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('signup')
   @Public()
   async Signup(@Body() createAuthDto: CreateAuthDto, @Res() res: Response) {
     return this.authService.Signup(createAuthDto, res);
   }
-
+  
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('login')
   @Public()
   async Login(@Body() createAuthDto: CreateAuthDto, @Res() res: Response) {
-    return this.authService.Login(createAuthDto, res);
+    return this.authService.login(createAuthDto, res);
   }
 
   @Post('refresh-token')

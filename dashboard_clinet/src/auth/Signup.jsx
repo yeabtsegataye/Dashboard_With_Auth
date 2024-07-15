@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
+import CryptoJS from "crypto-js";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
 
 export const Signup = () => {
+  const dispach = useDispatch();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    passwordConfirm: ''
+    name: "",
+    email: "",
+    password: "",
+    passwordConfirm: "",
   });
 
   const [formErrors, setFormErrors] = useState({});
   const [formValid, setFormValid] = useState(false);
+
+  const SECRET_KEY = "your-frontend-secret-key";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,37 +30,54 @@ export const Signup = () => {
     let errors = formErrors;
 
     switch (name) {
-      case 'email':
+      case "email":
         errors.email = value.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)
-          ? ''
-          : 'Email is invalid';
+          ? ""
+          : "Email is invalid";
         break;
-      case 'password':
-        errors.password = value.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/)
-          ? ''
-          : 'Password must contain at least 8 characters, UPPER/lowercase, number and special character';
+      case "password":
+        errors.password = value.match(
+          /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/
+        )
+          ? ""
+          : "Password must contain at least 8 characters, UPPER/lowercase, number and special character";
         break;
-      case 'passwordConfirm':
-        errors.passwordConfirm = value === formData.password
-          ? ''
-          : 'Passwords do not match';
+      case "passwordConfirm":
+        errors.passwordConfirm =
+          value === formData.password ? "" : "Passwords do not match";
         break;
       default:
         break;
     }
 
     setFormErrors(errors);
-    setFormValid(!Object.values(errors).some(error => error.length > 0));
+    setFormValid(!Object.values(errors).some((error) => error.length > 0));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formValid) {
       try {
-        const response = await axios.post('/api/signup', formData);
-        console.log('Signup successful', response.data);
+        const encryptedPassword = CryptoJS.AES.encrypt(
+          formData.password,
+          SECRET_KEY
+        ).toString();
+        const encryptedFormData = {
+          ...formData,
+          Password: encryptedPassword,
+        };
+   
+        const response = await axios.post(
+          "http://localhost:8000/auth/signup",
+          encryptedFormData
+        );
+        if (response.data.accessToken) {
+          // const userData = response.data;
+          // dispach(setCredentials(userData));
+          navigate("/");
+        }
       } catch (error) {
-        console.error('Signup error', error);
+        console.error("Signup error", error);
       }
     }
   };
@@ -74,7 +99,9 @@ export const Signup = () => {
                   <label htmlFor="name">Name</label>
                   <input
                     type="text"
-                    className={`form-control ${formErrors.name ? 'is-invalid' : ''}`}
+                    className={`form-control ${
+                      formErrors.name ? "is-invalid" : ""
+                    }`}
                     id="name"
                     name="name"
                     required
@@ -89,7 +116,11 @@ export const Signup = () => {
                   <input
                     id="email"
                     type="email"
-                    className={`form-control ${formErrors.email ? 'is-invalid' : formData.email && 'is-valid'}`}
+                    className={`form-control ${
+                      formErrors.email
+                        ? "is-invalid"
+                        : formData.email && "is-valid"
+                    }`}
                     name="email"
                     required
                     value={formData.email}
@@ -104,31 +135,47 @@ export const Signup = () => {
                     <input
                       id="password"
                       type="password"
-                      className={`form-control ${formErrors.password ? 'is-invalid' : formData.password && 'is-valid'}`}
+                      className={`form-control ${
+                        formErrors.password
+                          ? "is-invalid"
+                          : formData.password && "is-valid"
+                      }`}
                       name="password"
                       required
                       value={formData.password}
                       onChange={handleChange}
                     />
-                    <div className="invalid-feedback">{formErrors.password}</div>
+                    <div className="invalid-feedback">
+                      {formErrors.password}
+                    </div>
                   </div>
                   <div className="form-group col-md-6">
                     <label htmlFor="password-confirm">Confirm Password</label>
                     <input
                       id="password-confirm"
                       type="password"
-                      className={`form-control ${formErrors.passwordConfirm ? 'is-invalid' : formData.passwordConfirm && 'is-valid'}`}
+                      className={`form-control ${
+                        formErrors.passwordConfirm
+                          ? "is-invalid"
+                          : formData.passwordConfirm && "is-valid"
+                      }`}
                       name="passwordConfirm"
                       required
                       value={formData.passwordConfirm}
                       onChange={handleChange}
                     />
-                    <div className="invalid-feedback">{formErrors.passwordConfirm}</div>
+                    <div className="invalid-feedback">
+                      {formErrors.passwordConfirm}
+                    </div>
                   </div>
                 </div>
 
                 <div className="form-group no-margin">
-                  <button type="submit" className="btn btn-primary btn-block" disabled={!formValid}>
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-block"
+                    disabled={!formValid}
+                  >
                     Sign Up
                   </button>
                 </div>
