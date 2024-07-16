@@ -1,4 +1,4 @@
-# Project Template with JWT Authentication
+# Dashboard Project Template with JWT Authentication
 
 This project serves as a template for any project that requires JWT authentication with refresh and access tokens, along with a dashboard. Built with React.js, Nest.js, and MySQL.
 
@@ -38,3 +38,12 @@ Ensure you have the following installed:
 1. Clone the repo
    ```sh
    [git clone https://github.com/your-username/your-repo-name.git](https://github.com/yeabtsegataye/Dashboard_With_Auth.git)
+
+  ```sh
+   cd server
+   npm install
+
+  ```sh
+  cd dashboard_clinet
+  npm install
+
