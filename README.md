@@ -41,9 +41,7 @@ Ensure you have the following installed:
 
   ```sh
    cd server
-   npm install
-
-  ```sh
+   npm instal
   cd dashboard_clinet
   npm install
 
